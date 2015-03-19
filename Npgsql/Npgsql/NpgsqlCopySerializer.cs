@@ -82,6 +82,11 @@ namespace Npgsql
         private String[] _stringsToEscape = null;
         private Char[] _charsToEscape = null;
 
+        private Char _minCharToEscape = Char.MinValue;
+
+        private Char _maxCharToEscape = Char.MaxValue;
+
+
         private byte[] _sendBuffer = null;
         private int _sendBufferAt = 0, _lastFieldEndAt = 0, _lastRowEndAt = 0, _atField = 0;
 
@@ -377,6 +382,32 @@ namespace Npgsql
             }
         }
 
+        protected Char MinCharToEscape
+        {
+            get
+            {
+                if (_minCharToEscape == Char.MinValue)
+                {
+                    _minCharToEscape = CharsToEscape.OrderBy(r => r).First();
+                }
+
+                return _minCharToEscape;
+            }
+        }
+
+        protected Char MaxCharToEscape
+        {
+            get
+            {
+                if (_maxCharToEscape == Char.MaxValue)
+                {
+                    _maxCharToEscape = CharsToEscape.OrderByDescending(r => r).First();
+                }
+
+                return _maxCharToEscape;
+            }
+        }
+
         /// <summary>
         /// Escape sequence bytes.
         /// </summary>
@@ -562,12 +593,20 @@ namespace Npgsql
 
             var bufferAt = 0;
             byte[] escapeSequence = null;
+            var minCharToEscape = MinCharToEscape;
+            var maxCharToEscape = MaxCharToEscape;
 
             for (var i = 0; i < fieldValue.Length; i++)
             {
                 for (var escapeIndex = 0; escapeIndex < CharsToEscape.Length; escapeIndex++)
                 {
-                    if (fieldValue[i] == CharsToEscape[escapeIndex])
+                    var current = fieldValue[i];
+                    if (current < minCharToEscape || current > maxCharToEscape)
+                    {
+                        break;
+                    }
+
+                    if (current == CharsToEscape[escapeIndex])
                     {
                         escapeSequence = EscapeSequenceBytes[escapeIndex];
 
