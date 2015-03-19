@@ -80,6 +80,7 @@ namespace Npgsql
         private byte[] _delimiterBytes = null, _escapeBytes = null, _separatorBytes = null, _nullBytes = null;
         private byte[][] _escapeSequenceBytes = null;
         private String[] _stringsToEscape = null;
+        private Char[] _charsToEscape = null;
 
         private byte[] _sendBuffer = null;
         private int _sendBufferAt = 0, _lastFieldEndAt = 0, _lastRowEndAt = 0, _atField = 0;
@@ -364,6 +365,18 @@ namespace Npgsql
             }
         }
 
+        protected Char[] CharsToEscape
+        {
+            get
+            {
+                if (_charsToEscape == null)
+                {
+                    _charsToEscape = StringsToEscape.Select(r => r[0]).ToArray();
+                }
+                return _charsToEscape;
+            }
+        }
+
         /// <summary>
         /// Escape sequence bytes.
         /// </summary>
@@ -547,40 +560,41 @@ namespace Npgsql
                 return;
             }
 
-            int bufferedUpto = 0;
-            while (bufferedUpto < fieldValue.Length)
-            {
-                int escapeAt = fieldValue.Length;
-                byte[] escapeSequence = null;
+            var bufferAt = 0;
+            byte[] escapeSequence = null;
 
-                // choose closest instance of strings to escape in fieldValue
-                for (int eachEscapeable = 0; eachEscapeable < StringsToEscape.Length; eachEscapeable++)
+            for (var i = 0; i < fieldValue.Length; i++)
+            {
+                for (var escapeIndex = 0; escapeIndex < CharsToEscape.Length; escapeIndex++)
                 {
-                    int i = fieldValue.IndexOf(StringsToEscape[eachEscapeable], bufferedUpto);
-                    if (i > -1 && i < escapeAt)
+                    if (fieldValue[i] == CharsToEscape[escapeIndex])
                     {
-                        escapeAt = i;
-                        escapeSequence = EscapeSequenceBytes[eachEscapeable];
+                        escapeSequence = EscapeSequenceBytes[escapeIndex];
+
+                        //flush what we have so far
+                        int encodedLength = BackendEncoding.UTF8Encoding.GetByteCount(fieldValue.ToCharArray(bufferAt, i - bufferAt));
+                        MakeRoomForBytes(encodedLength);
+                        _sendBufferAt += BackendEncoding.UTF8Encoding.GetBytes(fieldValue, bufferAt, i - bufferAt, _sendBuffer, _sendBufferAt);
+                        bufferAt = i;
+
+
+                        AddBytes(EscapeBytes);
+                        AddBytes(escapeSequence);
+                        bufferAt++;
+
+                        //continue iterating through the remainder of the string
+                        break;
                     }
                 }
-
-                // some, possibly all of fieldValue string does not require escaping and can be buffered for output
-                if (escapeAt > bufferedUpto)
-                {
-                    int encodedLength = BackendEncoding.UTF8Encoding.GetByteCount(fieldValue.ToCharArray(bufferedUpto, escapeAt - bufferedUpto));
-                    MakeRoomForBytes(encodedLength);
-                    _sendBufferAt += BackendEncoding.UTF8Encoding.GetBytes(fieldValue, bufferedUpto, escapeAt - bufferedUpto, _sendBuffer, _sendBufferAt);
-                    bufferedUpto = escapeAt;
-                }
-
-                // now buffer the escape sequence for output
-                if (escapeSequence != null)
-                {
-                    AddBytes(EscapeBytes);
-                    AddBytes(escapeSequence);
-                    bufferedUpto++;
-                }
             }
+
+            if (bufferAt < fieldValue.Length - 1)
+            {
+                int encodedLength = BackendEncoding.UTF8Encoding.GetByteCount(fieldValue.ToCharArray(bufferAt, fieldValue.Length - bufferAt));
+                MakeRoomForBytes(encodedLength);
+                _sendBufferAt += BackendEncoding.UTF8Encoding.GetBytes(fieldValue, bufferAt, fieldValue.Length - bufferAt, _sendBuffer, _sendBufferAt);
+            }
+           
             FieldAdded();
         }
 
