@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Globalization;
+using System.Linq;
 
 namespace Npgsql
 {
@@ -89,6 +90,11 @@ namespace Npgsql
         /// <param name="conn"></param>
         public NpgsqlCopySerializer(NpgsqlConnection conn)
         {
+            if (StringsToEscape.Any(r => r.Count() > 1))
+            {
+                throw new NotSupportedException("AddString only supports 1 character-wide escapable strings.");
+            }
+
             _context = conn.Connector;
         }
 
@@ -525,7 +531,22 @@ namespace Npgsql
         /// <param name="fieldValue"></param>
         public void AddString(String fieldValue)
         {
+            AddString(fieldValue, true);
+        }
+
+        private void AddString(String fieldValue, bool shouldEscape)
+        {
             PrefixField();
+
+            if (!shouldEscape)
+            {
+                var encodedLength = BackendEncoding.UTF8Encoding.GetByteCount(fieldValue.ToCharArray(0, fieldValue.Length));
+                MakeRoomForBytes(encodedLength);
+                _sendBufferAt += BackendEncoding.UTF8Encoding.GetBytes(fieldValue, 0, fieldValue.Length, _sendBuffer, _sendBufferAt);
+                FieldAdded();
+                return;
+            }
+
             int bufferedUpto = 0;
             while (bufferedUpto < fieldValue.Length)
             {
@@ -546,10 +567,6 @@ namespace Npgsql
                 // some, possibly all of fieldValue string does not require escaping and can be buffered for output
                 if (escapeAt > bufferedUpto)
                 {
-//                    int encodedLength = BackendEncoding.UTF8Encoding.GetByteCount(fieldValue.ToCharArray(bufferedUpto, escapeAt));
-//                    MakeRoomForBytes(encodedLength);
-//                    _sendBufferAt += BackendEncoding.UTF8Encoding.GetBytes(fieldValue, bufferedUpto, escapeAt, _sendBuffer, _sendBufferAt);
-//                    bufferedUpto = escapeAt;
                     int encodedLength = BackendEncoding.UTF8Encoding.GetByteCount(fieldValue.ToCharArray(bufferedUpto, escapeAt - bufferedUpto));
                     MakeRoomForBytes(encodedLength);
                     _sendBufferAt += BackendEncoding.UTF8Encoding.GetBytes(fieldValue, bufferedUpto, escapeAt - bufferedUpto, _sendBuffer, _sendBufferAt);
@@ -573,7 +590,7 @@ namespace Npgsql
         /// <param name="fieldValue"></param>
         public void AddInt32(Int32 fieldValue)
         {
-            AddString(string.Format(_cultureInfo, "{0}", fieldValue));
+            AddString(string.Format(_cultureInfo, "{0}", fieldValue), false);
         }
 
         /// <summary>
@@ -582,7 +599,7 @@ namespace Npgsql
         /// <param name="fieldValue"></param>
         public void AddInt64(Int64 fieldValue)
         {
-            AddString(string.Format(_cultureInfo, "{0}", fieldValue));
+            AddString(string.Format(_cultureInfo, "{0}", fieldValue), false);
         }
 
         /// <summary>
@@ -591,7 +608,7 @@ namespace Npgsql
         /// <param name="fieldValue"></param>
         public void AddNumber(double fieldValue)
         {
-            AddString(string.Format(_cultureInfo, "{0}", fieldValue));
+            AddString(string.Format(_cultureInfo, "{0}", fieldValue), false);
         }
 
         /// <summary>
@@ -600,7 +617,7 @@ namespace Npgsql
         /// <param name="fieldValue"></param>
         public void AddBool(bool fieldValue)
         {
-            AddString(fieldValue ? "TRUE" : "FALSE");
+            AddString(fieldValue ? "TRUE" : "FALSE", false);
         }
 
         /// <summary>
@@ -609,7 +626,7 @@ namespace Npgsql
         /// <param name="fieldValue"></param>
         public void AddDateTime(DateTime fieldValue)
         {
-            AddString(fieldValue.ToString("yyyy-MM-dd HH:mm:ss.ffffff"));
+            AddString(fieldValue.ToString("yyyy-MM-dd HH:mm:ss.ffffff"), false);
         }
 
     }
