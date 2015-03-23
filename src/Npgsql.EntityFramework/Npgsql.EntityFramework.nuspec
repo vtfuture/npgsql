@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-    <id>Npgsql.EntityFramework</id>
-    <title>Npgsql for Entity Framework</title>
+    <id>VeriTech.Npgsql.EntityFramework</id>
+    <title>VeriTech.Npgsql for Entity Framework</title>
     <version>3.0.0-beta1</version>
     <authors>Francisco Figueiredo Jr., Josh Cooley, Dave Page, Jon Asher, Brar Piening, Chris Morgan, Hiroshi Saito, Jon Hanna, Federico Di Gregorio, Glen Parker, Shay Rojansky</authors>
     <owners>Francisco Figueiredo Jr., Josh Cooley, Shay Rojansky</owners>
@@ -15,15 +15,12 @@
     <language>en-US</language>
     <tags>Npgsql postgres data database Postgresql entity framework ef</tags>
     <dependencies>
-      <dependency id="Npgsql" version="[3.0.0-beta1]" />
+      <dependency id="VeriTech.Npgsql" version="[3.0.0-beta1]" />
       <dependency id="EntityFramework" version="6.0.0" />
       <dependency id="Common.Logging" version="2.2.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release-net40\Npgsql.EntityFramework.dll" target="lib\net40"/>
-    <file src="bin\Release-net40\Npgsql.EntityFramework.pdb" target="lib\net40"/>
-    <file src="bin\Release-net40\Npgsql.EntityFramework.xml" target="lib\net40"/>
     <file src="bin\Release-net45\Npgsql.EntityFramework.dll" target="lib\net45"/>
     <file src="bin\Release-net45\Npgsql.EntityFramework.pdb" target="lib\net45"/>
     <file src="bin\Release-net45\Npgsql.EntityFramework.xml" target="lib\net45"/>

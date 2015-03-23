@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-    <id>Npgsql</id>
-    <title>Npgsql</title>
+    <id>VeriTech.Npgsql</id>
+    <title>VeriTech.Npgsql</title>
     <version>3.0.0-beta1</version>
     <authors>Francisco Figueiredo Jr., Josh Cooley, Dave Page, Jon Asher, Brar Piening, Chris Morgan, Hiroshi Saito, Jon Hanna, Federico Di Gregorio, Glen Parker, Shay Rojansky</authors>
     <owners>Francisco Figueiredo Jr., Josh Cooley, Shay Rojansky</owners>
@@ -15,19 +15,12 @@
     <language>en-US</language>
     <tags>Npgsql postgres data database Postgresql</tags>
     <dependencies>
-     <group targetFramework="net40">
-       <dependency id="Microsoft.Bcl.Async" />
-       <dependency id="Common.Logging" version="2.2.0" />
-     </group>
      <group targetFramework="net45">
        <dependency id="Common.Logging" version="2.2.0" />
      </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release-net40\**\*.dll" target="lib\net40" exclude="**\policy.*" />
-    <file src="bin\Release-net40\*.pdb" target="lib\net40"/>
-    <file src="bin\Release-net40\*.xml" target="lib\net40"/>
     <file src="bin\Release-net45\**\*.dll" target="lib\net45" exclude="**\policy.*" />
     <file src="bin\Release-net45\*.pdb" target="lib\net45"/>
     <file src="bin\Release-net45\*.xml" target="lib\net45"/>
