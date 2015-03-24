@@ -578,7 +578,9 @@ namespace Npgsql
         public new NpgsqlTransaction BeginTransaction(IsolationLevel level)
         {
             if (level == IsolationLevel.Chaos || level == IsolationLevel.Unspecified)
-                throw new NotSupportedException("Unsupported IsolationLevel: " + level);
+            {
+                level = IsolationLevel.ReadCommitted;
+            }
             CheckConnectionReady();
             Contract.EndContractBlock();
 
