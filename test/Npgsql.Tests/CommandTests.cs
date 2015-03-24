@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -1072,6 +1073,25 @@ namespace Npgsql.Tests
             ExecuteScalar("SELECT 1", conn);  // Set timeout to 0
             tx.Rollback();                    // Rollback, backend has timeout 0 but Npgsql thinks it's still 20
             Assert.That(ExecuteScalar("SHOW statement_timeout", conn), Is.EqualTo("0"));
+            conn.Close();
+        }
+
+        [Test]
+        public void LargeStatementGetsBuffered()
+        {
+            var conn = new NpgsqlConnection(ConnectionString);
+            conn.Open();
+            var command = conn.CreateCommand();
+            command.CommandText = string.Format("SELECT * FROM DATA WHERE field_pk in ({0}) and :tst = 1;",
+                string.Join(",", Enumerable.Repeat(10000, 100000)));
+            var param = new NpgsqlParameter("tst", NpgsqlDbType.Integer);
+            param.Value = 1;
+            command.Parameters.Add(param);
+            command.ExpectedTypes = new Type[] { typeof(int) };
+            var reader = command.ExecuteReader();
+            reader.Read();
+            reader.Read();
+
             conn.Close();
         }
     }

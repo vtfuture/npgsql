@@ -592,5 +592,19 @@ namespace Npgsql.EntityFramework.Tests
                 }   
             }
         }
+
+        [Test]
+        public void TestQueryWithLargeArrayContains()
+        {
+            using (var context = new BloggingContext(ConnectionStringEF))
+            {
+                var ids = Enumerable.Repeat(1000, 1000).ToList();
+                var blogs = context.Blogs.Where(r => ids.Contains(r.BlogId)).Select(r => new
+                {
+                    r.BlogId,
+                    r.Name
+                }).ToList();
+            }
+        }
     }
 }
