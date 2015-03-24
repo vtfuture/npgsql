@@ -3,7 +3,7 @@
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>VeriTech.Npgsql</id>
     <title>VeriTech.Npgsql</title>
-    <version>3.0.0-beta1</version>
+    <version>3.0.0-beta2</version>
     <authors>Francisco Figueiredo Jr., Josh Cooley, Dave Page, Jon Asher, Brar Piening, Chris Morgan, Hiroshi Saito, Jon Hanna, Federico Di Gregorio, Glen Parker, Shay Rojansky</authors>
     <owners>Francisco Figueiredo Jr., Josh Cooley, Shay Rojansky</owners>
     <licenseUrl>https://github.com/npgsql/Npgsql/wiki/License</licenseUrl>
@@ -21,9 +21,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release-net45\**\*.dll" target="lib\net45" exclude="**\policy.*" />
-    <file src="bin\Release-net45\*.pdb" target="lib\net45"/>
-    <file src="bin\Release-net45\*.xml" target="lib\net45"/>
+    <file src="bin\Release-net45\Npgsql.dll" target="lib\net45" />
+    <file src="bin\Release-net45\Npgsql.pdb" target="lib\net45"/>
+    <file src="bin\Release-net45\Npgsql.xml" target="lib\net45"/>
     <file src="**\*.cs" target="src" />
   </files>
 </package>
