@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using NUnit.Framework;
 
@@ -24,6 +26,16 @@ namespace NpgsqlTests
         public static void Inconclusive(string message, params object[] args)
         {
             Inconclusive(String.Format(message, args));
+        }
+
+        public static string ReadResource(string name)
+        {
+            var asm = Assembly.GetExecutingAssembly();
+            using(var stream = asm.GetManifestResourceStream(name))
+            using (var reader = new StreamReader(stream))
+            {
+                return reader.ReadToEnd();
+            }
         }
     }
 
@@ -65,6 +77,7 @@ namespace NpgsqlTests
         public void AfterTest(TestDetails testDetails) { }
         public ActionTargets Targets { get { return ActionTargets.Test; } }
     }
+    
     
     /// <summary>
     /// Causes the test to be ignored if the Postgresql backend version is less than the given one.
