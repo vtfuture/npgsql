@@ -629,7 +629,7 @@ namespace Npgsql
                 }
             }
 
-            if (bufferAt < fieldValue.Length - 1)
+            if (bufferAt < fieldValue.Length)
             {
                 int encodedLength = BackendEncoding.UTF8Encoding.GetByteCount(fieldValue.ToCharArray(bufferAt, fieldValue.Length - bufferAt));
                 MakeRoomForBytes(encodedLength);

@@ -44,6 +44,19 @@ namespace NpgsqlTests
 
             serializer.AddInt32(3);
             serializer.AddString(model.OutputData);
+            serializer.EndRow();
+
+            serializer.AddInt32(4);
+            serializer.AddString("abc");
+            serializer.EndRow();
+
+            serializer.AddInt32(5);
+            serializer.AddString("ab");
+            serializer.EndRow();
+
+            serializer.AddInt32(6);
+            serializer.AddString("a");
+            serializer.EndRow();
 
             serializer.Flush();
             serializer.Close();
@@ -65,6 +78,24 @@ namespace NpgsqlTests
             var outputDataStrFromDb = (string)readOutputDataStrCmd.ExecuteScalar();
             
             Assert.AreEqual(model.OutputData, outputDataStrFromDb);
+
+            var readSimpleStringUneven = Conn.CreateCommand();
+            readSimpleStringUneven.CommandText = "SELECT field_text FROM data where field_pk = 4";
+            var outputSimpleStringUneven = (string)readSimpleStringUneven.ExecuteScalar();
+
+            Assert.AreEqual("abc", outputSimpleStringUneven);
+
+            var readSimpleStringEven = Conn.CreateCommand();
+            readSimpleStringEven.CommandText = "SELECT field_text FROM data where field_pk = 5";
+            var outputSimpleStringEven = (string)readSimpleStringEven.ExecuteScalar();
+
+            Assert.AreEqual("ab", outputSimpleStringEven);
+
+            var readSimpleStringOneChar = Conn.CreateCommand();
+            readSimpleStringOneChar.CommandText = "SELECT field_text FROM data where field_pk = 6";
+            var outputSimpleStringOneChar = (string)readSimpleStringOneChar.ExecuteScalar();
+
+            Assert.AreEqual("a", outputSimpleStringOneChar);
         }
     }
 }
