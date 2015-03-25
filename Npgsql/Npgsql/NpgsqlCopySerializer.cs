@@ -596,9 +596,11 @@ namespace Npgsql
             var minCharToEscape = MinCharToEscape;
             var maxCharToEscape = MaxCharToEscape;
 
+            var charsToEscape = CharsToEscape;
+
             for (var i = 0; i < fieldValue.Length; i++)
             {
-                for (var escapeIndex = 0; escapeIndex < CharsToEscape.Length; escapeIndex++)
+                for (var escapeIndex = 0; escapeIndex < charsToEscape.Length; escapeIndex++)
                 {
                     var current = fieldValue[i];
                     if (current < minCharToEscape || current > maxCharToEscape)
@@ -606,7 +608,7 @@ namespace Npgsql
                         break;
                     }
 
-                    if (current == CharsToEscape[escapeIndex])
+                    if (current == charsToEscape[escapeIndex])
                     {
                         escapeSequence = EscapeSequenceBytes[escapeIndex];
 
