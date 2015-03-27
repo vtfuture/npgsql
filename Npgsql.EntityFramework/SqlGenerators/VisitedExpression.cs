@@ -294,7 +294,7 @@ namespace Npgsql.SqlGenerators
             }
         }
 
-        internal void AppendReturning(DbNewInstanceExpression expression)
+        internal void AppendReturning(DbNewInstanceExpression expression, string schema, string table)
         {
             Append(" RETURNING ");//Don't put () around columns it will probably have unwanted effect
             bool first = true;
@@ -302,7 +302,12 @@ namespace Npgsql.SqlGenerators
             {
                 if (!first)
                     Append(",");
-                Append(SqlBaseGenerator.QuoteIdentifier((returingProperty as DbPropertyExpression).Property.Name));
+                var asPropExpr = returingProperty as DbPropertyExpression;
+                Append(SqlBaseGenerator.QuoteIdentifier(schema));
+                Append(".");
+                Append(SqlBaseGenerator.QuoteIdentifier(table));
+                Append(".");
+                Append(SqlBaseGenerator.QuoteIdentifier(asPropExpr.Property.Name));
                 first = false;
             }
         }

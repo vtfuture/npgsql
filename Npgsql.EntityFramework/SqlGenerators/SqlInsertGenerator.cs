@@ -45,7 +45,9 @@ namespace Npgsql.SqlGenerators
             insert.AppendValues(values);
             if (_commandTree.Returning != null)
             {
-                insert.AppendReturning(_commandTree.Returning as DbNewInstanceExpression);
+                // TODO: better
+                var scanExpr = _commandTree.Target.Expression as DbScanExpression;
+                insert.AppendReturning(_commandTree.Returning as DbNewInstanceExpression, scanExpr.Target.Schema, scanExpr.Target.Table);
             }
             _tableName = null;
             command.CommandText = insert.ToString();
